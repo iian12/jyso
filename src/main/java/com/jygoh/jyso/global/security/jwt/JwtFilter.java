@@ -1,6 +1,7 @@
 package com.jygoh.jyso.global.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jygoh.jyso.domain.member.entity.Member;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,7 +28,7 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = jwtUtils.getHeaderToken(request, "Access");
-        String refreshToken = jwtUtils.getHeaderToken(request, "Header");
+        String refreshToken = jwtUtils.getHeaderToken(request, "Refresh");
 
         if (accessToken != null) {
             if (jwtUtils.tokenValidation(accessToken)) {
@@ -35,7 +36,8 @@ public class JwtFilter extends OncePerRequestFilter {
             } else if (refreshToken != null) {
                 if (jwtUtils.refreshTokenValidation(refreshToken)) {
                     String email = jwtUtils.getEmailFromToken(refreshToken);
-                    String newAccessToken = jwtProvider.createToken(email, "Access");
+                    Member member = jwtUtils.loadMemberByEmail(email);
+                    String newAccessToken = jwtProvider.createToken(email, member.getRole().name(), member.getNickname(), "Access");
                     jwtProvider.setHeaderAccessToken(response, newAccessToken);
                     setAuthentication(jwtUtils.getEmailFromToken(newAccessToken));
                 } else {

@@ -1,5 +1,7 @@
 package com.jygoh.jyso.global.security.jwt;
 
+import com.jygoh.jyso.domain.member.entity.Member;
+import com.jygoh.jyso.domain.member.repository.MemberRepository;
 import com.jygoh.jyso.domain.member.service.UserDetailsServiceImpl;
 import com.jygoh.jyso.global.security.jwt.entity.RefreshToken;
 import com.jygoh.jyso.global.security.jwt.repository.RefreshTokenRepository;
@@ -9,6 +11,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -20,11 +23,13 @@ public class JwtUtils {
     private final UserDetailsServiceImpl userDetailsService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtProvider jwtProvider;
+    private final MemberRepository memberRepository;
 
-    public JwtUtils(UserDetailsServiceImpl userDetailsService, RefreshTokenRepository refreshTokenRepository, JwtProvider jwtProvider) {
+    public JwtUtils(UserDetailsServiceImpl userDetailsService, RefreshTokenRepository refreshTokenRepository, JwtProvider jwtProvider, MemberRepository memberRepository) {
         this.userDetailsService = userDetailsService;
         this.refreshTokenRepository = refreshTokenRepository;
         this.jwtProvider = jwtProvider;
+        this.memberRepository = memberRepository;
     }
 
     public String getHeaderToken(HttpServletRequest request, String type) {
@@ -57,5 +62,9 @@ public class JwtUtils {
 
     public String getEmailFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(jwtProvider.getKey()).build().parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public Member loadMemberByEmail(String email) {
+        return memberRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
     }
 }

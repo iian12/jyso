@@ -43,16 +43,18 @@ public class JwtProvider {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
-    public TokenDto createAllToken(String email) {
-        return new TokenDto(createToken(email, "Access"), createToken(email, "Refresh"));
+    public TokenDto createAllToken(String email, String role, String nickname) {
+        return new TokenDto(createToken(email, role, nickname, "Access"), createToken(email, role, nickname, "Refresh"));
     }
 
-    public String createToken(String email, String type) {
+    public String createToken(String email, String role, String nickname, String type) {
         Date date = new Date();
         long time = type.equals("Access") ? accessTime : refreshTime;
 
         return Jwts.builder()
                 .setSubject(email)
+                .claim("role", role)
+                .claim("nickname", nickname)
                 .setExpiration(new Date(date.getTime() + time))
                 .setIssuedAt(date)
                 .signWith(key, signatureAlgorithm)

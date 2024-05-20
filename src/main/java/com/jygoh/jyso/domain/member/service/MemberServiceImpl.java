@@ -15,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,8 +75,10 @@ public class MemberServiceImpl implements MemberService {
             // 2. 인증이 성공하면 SecurityContext에 저장합니다.
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            Member member = memberRepository.findByEmail(requestDto.getEmail()).orElseThrow(() -> new UsernameNotFoundException("Not Found : " + requestDto.getEmail()));
+
             // 3. JWT를 생성합니다.
-            TokenDto tokenDto = jwtProvider.createAllToken(requestDto.getEmail());
+            TokenDto tokenDto = jwtProvider.createAllToken(requestDto.getEmail(), member.getRole().name(), member.getNickname());
 
             Optional<RefreshToken> refreshToken = refreshTokenRepository.findByMemberEmail(requestDto.getEmail());
 
