@@ -7,6 +7,7 @@ import com.jygoh.jyso.domain.member.repository.MemberRepository;
 import com.jygoh.jyso.global.error.EmailAlreadyExistsException;
 import com.jygoh.jyso.global.security.jwt.JwtProvider;
 import com.jygoh.jyso.global.security.jwt.TokenDto;
+import com.jygoh.jyso.global.security.jwt.TokenPayload;
 import com.jygoh.jyso.global.security.jwt.entity.RefreshToken;
 import com.jygoh.jyso.global.security.jwt.repository.RefreshTokenRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -77,20 +78,28 @@ public class MemberServiceImpl implements MemberService {
 
             Member member = memberRepository.findByEmail(requestDto.getEmail()).orElseThrow(() -> new UsernameNotFoundException("Not Found : " + requestDto.getEmail()));
 
+            TokenPayload tokenPayload = TokenPayload.builder()
+                    .email(requestDto.getEmail())
+                    .role(member.getRole().name())
+                    .nickname(member.getNickname())
+                    .build();
+
+
             // 3. JWT를 생성합니다.
-            TokenDto tokenDto = jwtProvider.createAllToken(requestDto.getEmail(), member.getRole().name(), member.getNickname());
+            String accessToken = jwtProvider.createToken(tokenPayload, "Access");
+            String refreshToken = jwtProvider.createToken(tokenPayload, "Refresh");
 
-            Optional<RefreshToken> refreshToken = refreshTokenRepository.findByMemberEmail(requestDto.getEmail());
-
-            if (refreshToken.isPresent()) {
-                refreshTokenRepository.save(refreshToken.get().updateToken(tokenDto.getRefreshToken()));
+            Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByMemberEmail(requestDto.getEmail());
+            if (optionalRefreshToken.isPresent()) {
+                RefreshToken existingRefreshToken = optionalRefreshToken.get();
+                existingRefreshToken.updateToken(refreshToken);
+                refreshTokenRepository.save(existingRefreshToken);
             } else {
-                RefreshToken newToken = new RefreshToken(tokenDto.getRefreshToken(), requestDto.getEmail());
-                refreshTokenRepository.save(newToken);
+                refreshTokenRepository.save(new RefreshToken(refreshToken, requestDto.getEmail()));
             }
 
             // 5. 생성된 토큰을 반환합니다.
-            return tokenDto;
+            return new TokenDto(accessToken, refreshToken);
         } catch (AuthenticationException e) {
             // 로그인 실패 시 예외를 잡아서 처리합니다.
             throw new BadCredentialsException("Authentication failed: " + e.getMessage());

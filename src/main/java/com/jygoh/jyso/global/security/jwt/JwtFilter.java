@@ -27,26 +27,34 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
         String accessToken = jwtUtils.getHeaderToken(request, "Access");
         String refreshToken = jwtUtils.getHeaderToken(request, "Refresh");
 
         if (accessToken != null) {
             if (jwtUtils.tokenValidation(accessToken)) {
                 setAuthentication(jwtUtils.getEmailFromToken(accessToken));
-            } else if (refreshToken != null) {
-                if (jwtUtils.refreshTokenValidation(refreshToken)) {
-                    String email = jwtUtils.getEmailFromToken(refreshToken);
-                    Member member = jwtUtils.loadMemberByEmail(email);
-                    String newAccessToken = jwtProvider.createToken(email, member.getRole().name(), member.getNickname(), "Access");
-                    jwtProvider.setHeaderAccessToken(response, newAccessToken);
-                    setAuthentication(jwtUtils.getEmailFromToken(newAccessToken));
-                } else {
-                    jwtExceptionHandler(response, "RefreshToken Expired", HttpStatus.BAD_REQUEST);
-                }
+            } else if (refreshToken != null && jwtUtils.refreshTokenValidation(refreshToken)) {
+                refreshAccessToken(refreshToken, response);
+            } else {
+                jwtExceptionHandler(response, "Access Token Expired or Invalid", HttpStatus.UNAUTHORIZED);
+                return;
             }
+        } else if (refreshToken != null && jwtUtils.refreshTokenValidation(refreshToken)) {
+            refreshAccessToken(refreshToken, response);
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private void refreshAccessToken(String refreshToken, HttpServletResponse response) throws IOException {
+        String email = jwtUtils.getEmailFromToken(refreshToken);
+        Member member = jwtUtils.loadMemberByEmail(email);
+        String newAccessToken = jwtProvider.createToken(
+                new TokenPayload(email, member.getRole().name(), member.getNickname()), "Access"
+        );
+        jwtProvider.setHeaderAccessToken(response, newAccessToken);
+        setAuthentication(jwtUtils.getEmailFromToken(newAccessToken));
     }
 
     private void setAuthentication(String email) {

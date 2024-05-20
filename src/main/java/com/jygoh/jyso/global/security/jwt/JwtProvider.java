@@ -43,18 +43,15 @@ public class JwtProvider {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
-    public TokenDto createAllToken(String email, String role, String nickname) {
-        return new TokenDto(createToken(email, role, nickname, "Access"), createToken(email, role, nickname, "Refresh"));
-    }
 
-    public String createToken(String email, String role, String nickname, String type) {
+    public String createToken(TokenPayload tokenPayload, String type) {
         Date date = new Date();
         long time = type.equals("Access") ? accessTime : refreshTime;
 
         return Jwts.builder()
-                .setSubject(email)
-                .claim("role", role)
-                .claim("nickname", nickname)
+                .setSubject(tokenPayload.getEmail())
+                .claim("role", tokenPayload.getRole())
+                .claim("nickname", tokenPayload.getNickname())
                 .setExpiration(new Date(date.getTime() + time))
                 .setIssuedAt(date)
                 .signWith(key, signatureAlgorithm)
@@ -63,9 +60,5 @@ public class JwtProvider {
 
     public void setHeaderAccessToken(HttpServletResponse response, String accessToken) {
         response.setHeader(accessTokenHeader, accessToken);
-    }
-
-    public void setHeaderRefreshToken(HttpServletResponse response, String refreshToken) {
-        response.setHeader(refreshTokenHeader, refreshToken);
     }
 }
