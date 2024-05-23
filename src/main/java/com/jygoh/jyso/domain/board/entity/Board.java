@@ -41,6 +41,7 @@ public class Board {
     @ColumnDefault("0")
     private Integer commentCount;
 
+    @ColumnDefault("false")
     private Boolean isEdited;
 
     @Column(updatable = false)

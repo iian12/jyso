@@ -19,11 +19,11 @@ public class CommentController {
     }
 
     @PostMapping("/{boardId}")
-    public ResponseEntity<Void> createComment(@PathVariable Long boardId, @RequestBody CommentCreateRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<?> createComment(@PathVariable Long boardId, @RequestBody CommentCreateRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         String nickname = userDetails.getNickname();
         commentService.createComment(boardId, requestDto, nickname);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("success");
     }
 
     @PutMapping("/{commentId}")

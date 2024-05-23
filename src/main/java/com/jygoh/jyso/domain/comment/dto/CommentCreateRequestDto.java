@@ -10,8 +10,8 @@ public class CommentCreateRequestDto {
     private final Long parentId;
 
     @Builder
-    public CommentCreateRequestDto(Long parentId, String content) {
-        this.parentId = parentId;
+    public CommentCreateRequestDto(String content, Long parentId) {
         this.content = content;
+        this.parentId = parentId;
     }
 }

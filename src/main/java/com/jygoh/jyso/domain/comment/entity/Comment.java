@@ -1,7 +1,6 @@
 package com.jygoh.jyso.domain.comment.entity;
 
 import com.jygoh.jyso.domain.board.entity.Board;
-import com.jygoh.jyso.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

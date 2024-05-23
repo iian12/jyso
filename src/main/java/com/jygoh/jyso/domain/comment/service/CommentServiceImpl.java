@@ -43,11 +43,10 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = Comment.builder()
                 .content(requestDto.getContent())
                 .writer(nickname)
-                .board(board)
                 .isEdited(false)
                 .isDeleted(false)
                 .parent(parentComment)
-                .createdAt(LocalDateTime.now())
+                .board(board)
                 .build();
 
         commentRepository.save(comment);
