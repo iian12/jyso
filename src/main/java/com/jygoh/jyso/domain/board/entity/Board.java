@@ -1,12 +1,13 @@
 package com.jygoh.jyso.domain.board.entity;
 
-import com.jygoh.jyso.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -26,23 +27,26 @@ public class Board {
     @Enumerated(EnumType.STRING)
     private Category category;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Member writer;
+    private String writer;
 
+    @ColumnDefault("0")
     private Integer viewCount;
 
+    @ColumnDefault("0")
     private Integer likeCount;
 
+    @ColumnDefault("0")
     private Integer commentCount;
 
+    @Column(updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @CreationTimestamp
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     @Builder
-    public Board(Long id, String title, String content, Category category, Member writer, Integer viewCount, Integer likeCount, Integer commentCount) {
+    public Board(Long id, String title, String content, Category category, String writer, Integer viewCount, Integer likeCount, Integer commentCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -52,5 +56,4 @@ public class Board {
         this.likeCount = likeCount;
         this.commentCount = commentCount;
     }
-
 }

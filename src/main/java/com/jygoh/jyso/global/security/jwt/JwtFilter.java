@@ -1,75 +1,58 @@
 package com.jygoh.jyso.global.security.jwt;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jygoh.jyso.domain.member.entity.Member;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 @Log4j2
+@Component
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
-    private final JwtUtils jwtUtils;
+    private final UserDetailsService userDetailsService;
 
-    public JwtFilter(JwtProvider jwtProvider, JwtUtils jwtUtils) {
+    public JwtFilter(JwtProvider jwtProvider, UserDetailsService userDetailsService) {
         this.jwtProvider = jwtProvider;
-        this.jwtUtils = jwtUtils;
+        this.userDetailsService = userDetailsService;
     }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String token = getTokenFromRequest(request);
 
-        String accessToken = jwtUtils.getHeaderToken(request, "Access");
-        String refreshToken = jwtUtils.getHeaderToken(request, "Refresh");
+        if (token != null && jwtProvider.validateToken(token)) {
+            Claims claims = jwtProvider.getClaimsFromToken(token);
+            String email = claims.getSubject();
 
-        if (accessToken != null) {
-            if (jwtUtils.tokenValidation(accessToken)) {
-                setAuthentication(jwtUtils.getEmailFromToken(accessToken));
-            } else if (refreshToken != null && jwtUtils.refreshTokenValidation(refreshToken)) {
-                refreshAccessToken(refreshToken, response);
-            } else {
-                jwtExceptionHandler(response, "Access Token Expired or Invalid", HttpStatus.UNAUTHORIZED);
-                return;
-            }
-        } else if (refreshToken != null && jwtUtils.refreshTokenValidation(refreshToken)) {
-            refreshAccessToken(refreshToken, response);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+
+            JwtAuthenticationToken authentication = new JwtAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         filterChain.doFilter(request, response);
+
     }
 
-    private void refreshAccessToken(String refreshToken, HttpServletResponse response) throws IOException {
-        String email = jwtUtils.getEmailFromToken(refreshToken);
-        Member member = jwtUtils.loadMemberByEmail(email);
-        String newAccessToken = jwtProvider.createToken(
-                new TokenPayload(email, member.getRole().name(), member.getNickname()), "Access"
-        );
-        jwtProvider.setHeaderAccessToken(response, newAccessToken);
-        setAuthentication(jwtUtils.getEmailFromToken(newAccessToken));
-    }
-
-    private void setAuthentication(String email) {
-        Authentication authentication = jwtUtils.createAuthentication(email);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
-
-    private void jwtExceptionHandler(HttpServletResponse response, String msg, HttpStatus status) {
-        response.setStatus(status.value());
-        response.setContentType("application/json");
-        try {
-            String json = new ObjectMapper().writeValueAsString(msg);
-            response.getWriter().write(json);
-        } catch (Exception e) {
-            log.error(e.getMessage());
+    private String getTokenFromRequest(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
         }
+
+        return null;
     }
 }

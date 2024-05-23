@@ -1,9 +1,8 @@
 package com.jygoh.jyso.global.security.jwt.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.jygoh.jyso.domain.member.entity.Member;
+import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,16 +17,13 @@ public class RefreshToken {
 
     private String refreshToken;
 
-    private String memberEmail;
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    private Member member;
 
-
-    public RefreshToken(String token, String email) {
+    @Builder
+    public RefreshToken(String token, Member member) {
         this.refreshToken = token;
-        this.memberEmail = email;
-    }
-
-    public RefreshToken updateToken(String token) {
-        this.refreshToken = token;
-        return this;
+        this.member = member;
     }
 }

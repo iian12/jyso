@@ -1,11 +1,11 @@
 package com.jygoh.jyso.global.config;
 
 import com.jygoh.jyso.domain.member.service.UserDetailsServiceImpl;
+import com.jygoh.jyso.global.error.CustomAuthenticationEntryPoint;
 import com.jygoh.jyso.global.security.jwt.JwtFilter;
-import com.jygoh.jyso.global.security.jwt.JwtProvider;
-import com.jygoh.jyso.global.security.jwt.JwtUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,14 +20,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final CustomAuthenticationEntryPoint entryPoint;
     private final UserDetailsServiceImpl userDetailsService;
-    private final JwtUtils jwtUtils;
-    private final JwtProvider jwtProvider;
+    private final JwtFilter jwtFilter;
 
-    public SecurityConfig(UserDetailsServiceImpl userDetailsService, JwtUtils jwtUtils, JwtProvider jwtProvider) {
+    public SecurityConfig(CustomAuthenticationEntryPoint entryPoint, UserDetailsServiceImpl userDetailsService, JwtFilter jwtFilter) {
+        this.entryPoint = entryPoint;
         this.userDetailsService = userDetailsService;
-        this.jwtUtils = jwtUtils;
-        this.jwtProvider = jwtProvider;
+        this.jwtFilter = jwtFilter;
     }
 
     @Bean
@@ -42,20 +42,16 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
+        return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**")
-                        .permitAll()
-                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/board/**").permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(new JwtFilter(jwtProvider, jwtUtils), UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-        return http.build();
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(handler -> handler.authenticationEntryPoint(entryPoint))
+                .build();
     }
-
 }
