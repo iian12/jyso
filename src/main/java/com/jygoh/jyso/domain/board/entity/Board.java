@@ -1,5 +1,6 @@
 package com.jygoh.jyso.domain.board.entity;
 
+import com.jygoh.jyso.domain.comment.entity.Comment;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -10,6 +11,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -38,7 +41,6 @@ public class Board {
     @ColumnDefault("0")
     private Integer commentCount;
 
-    @ColumnDefault("false")
     private Boolean isEdited;
 
     @Column(updatable = false)
@@ -47,6 +49,9 @@ public class Board {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 
     @Builder
     public Board(Long id, String title, String content, Category category, String writer, Integer viewCount, Integer likeCount, Integer commentCount, Boolean isEdited, LocalDateTime createdAt, LocalDateTime updatedAt) {
@@ -59,5 +64,7 @@ public class Board {
         this.likeCount = likeCount;
         this.commentCount = commentCount;
         this.isEdited = isEdited;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 }

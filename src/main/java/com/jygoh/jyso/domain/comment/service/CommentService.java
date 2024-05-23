@@ -11,5 +11,4 @@ public interface CommentService {
     void createComment(Long boardId, CommentCreateRequestDto requestDto, String nickname);
     void updateComment(Long commentId, CommentUpdateRequestDto requestDto, String nickname);
     void deleteComment(Long commentId, String nickname);
-    List<CommentResponseDto> getCommentsByBoard(Long boardId);
 }

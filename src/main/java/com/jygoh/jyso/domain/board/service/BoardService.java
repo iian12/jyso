@@ -19,4 +19,6 @@ public interface BoardService {
     BoardResponseDto getBoard(Long boardId);
 
     List<BoardListResponseDto> getBoardByCategory(Category category);
+
+    void incrementCommentCount(Long boardId);
 }

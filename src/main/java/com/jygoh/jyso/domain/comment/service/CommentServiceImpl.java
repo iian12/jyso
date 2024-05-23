@@ -2,6 +2,7 @@ package com.jygoh.jyso.domain.comment.service;
 
 import com.jygoh.jyso.domain.board.entity.Board;
 import com.jygoh.jyso.domain.board.repository.BoardRepository;
+import com.jygoh.jyso.domain.board.service.BoardService;
 import com.jygoh.jyso.domain.comment.dto.CommentCreateRequestDto;
 import com.jygoh.jyso.domain.comment.dto.CommentResponseDto;
 import com.jygoh.jyso.domain.comment.dto.CommentUpdateRequestDto;
@@ -11,6 +12,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,10 +20,12 @@ import java.util.stream.Collectors;
 @Transactional
 public class CommentServiceImpl implements CommentService {
 
+    private final BoardService boardService;
     private final CommentRepository commentRepository;
     private final BoardRepository boardRepository;
 
-    public CommentServiceImpl(CommentRepository commentRepository, BoardRepository boardRepository) {
+    public CommentServiceImpl(BoardService boardService, CommentRepository commentRepository, BoardRepository boardRepository) {
+        this.boardService = boardService;
         this.commentRepository = commentRepository;
         this.boardRepository = boardRepository;
     }
@@ -39,12 +43,16 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = Comment.builder()
                 .content(requestDto.getContent())
                 .writer(nickname)
-                .parent(parentComment)
+                .board(board)
                 .isEdited(false)
                 .isDeleted(false)
+                .parent(parentComment)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         commentRepository.save(comment);
+
+        boardService.incrementCommentCount(board.getId());
     }
 
     public void updateComment(Long commentId, CommentUpdateRequestDto requestDto, String nickname) {
@@ -89,30 +97,5 @@ public class CommentServiceImpl implements CommentService {
                 .build();
 
         commentRepository.save(deletedComment);
-    }
-
-    public List<CommentResponseDto> getCommentsByBoard(Long boardId) {
-        List<Comment> comments = commentRepository.findByBoardIdAndParentIsNull(boardId);
-
-        return comments.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
-
-    private CommentResponseDto convertToDto(Comment comment) {
-        List<CommentResponseDto> children = comment.getChildren().stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-
-        return CommentResponseDto.builder()
-                .id(comment.getId())
-                .content(comment.getContent())
-                .writer(comment.getWriter())
-                .parentId(comment.getParent() != null ? comment.getParent().getId() : null)
-                .isEdited(comment.getIsEdited())
-                .isDeleted(comment.getIsDeleted())
-                .createdAt(comment.getCreatedAt())
-                .children(children)
-                .build();
     }
 }

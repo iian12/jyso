@@ -1,14 +1,17 @@
 package com.jygoh.jyso.domain.comment.dto;
 
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
-@NoArgsConstructor
 public class CommentCreateRequestDto {
 
-    private String content;
-    private Long parentId;
+    private final String content;
+    private final Long parentId;
+
+    @Builder
+    public CommentCreateRequestDto(Long parentId, String content) {
+        this.parentId = parentId;
+        this.content = content;
+    }
 }
