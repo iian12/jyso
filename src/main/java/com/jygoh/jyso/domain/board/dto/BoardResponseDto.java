@@ -17,11 +17,12 @@ public class BoardResponseDto {
     private final Integer viewCount;
     private final Integer likeCount;
     private final Integer commentCount;
+    private final Boolean isEdited;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
     @Builder
-    public BoardResponseDto(Long id, String title, String content, Category category, String writer, Integer viewCount, Integer likeCount, Integer commentCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public BoardResponseDto(Long id, String title, String content, Category category, String writer, Integer viewCount, Integer likeCount, Integer commentCount, Boolean isEdited, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -30,6 +31,7 @@ public class BoardResponseDto {
         this.viewCount = viewCount;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
+        this.isEdited = isEdited;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }

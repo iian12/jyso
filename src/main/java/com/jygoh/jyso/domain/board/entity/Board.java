@@ -38,6 +38,9 @@ public class Board {
     @ColumnDefault("0")
     private Integer commentCount;
 
+    @ColumnDefault("false")
+    private Boolean isEdited;
+
     @Column(updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -46,7 +49,7 @@ public class Board {
     private LocalDateTime updatedAt;
 
     @Builder
-    public Board(Long id, String title, String content, Category category, String writer, Integer viewCount, Integer likeCount, Integer commentCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public Board(Long id, String title, String content, Category category, String writer, Integer viewCount, Integer likeCount, Integer commentCount, Boolean isEdited, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -55,5 +58,6 @@ public class Board {
         this.viewCount = viewCount;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
+        this.isEdited = isEdited;
     }
 }

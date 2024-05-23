@@ -37,6 +37,7 @@ public class BoardServiceImpl implements BoardService {
                 .viewCount(0)
                 .likeCount(0)
                 .commentCount(0)
+                .isEdited(false)
                 .build();
 
         boardRepository.save(board);
@@ -62,6 +63,7 @@ public class BoardServiceImpl implements BoardService {
                 .commentCount(board.getCommentCount())  // 기존 commentCount 유지
                 .createdAt(board.getCreatedAt())  // 기존 createdAt 유지
                 .updatedAt(LocalDateTime.now())
+                .isEdited(true)
                 .build();
 
         boardRepository.save(updateBoard);

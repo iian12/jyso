@@ -1,6 +1,5 @@
 package com.jygoh.jyso.domain.board.dto;
 
-import com.jygoh.jyso.domain.board.entity.Category;
 import lombok.Builder;
 import lombok.Getter;
 

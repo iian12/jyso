@@ -7,7 +7,10 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,13 +25,16 @@ public class Comment {
 
     private String content;
 
-    private Boolean isUpdated;
+    private String writer;
 
+    @ColumnDefault("false")
+    private Boolean isEdited;
+
+    @ColumnDefault("false")
     private Boolean isDeleted;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member writer;
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
@@ -42,7 +48,14 @@ public class Comment {
     private Board board;
 
     @Builder
-    public Comment(String content) {
+    public Comment(Long id, String content, String writer, Board board, Boolean isEdited, Boolean isDeleted, Comment parent, LocalDateTime createdAt) {
+        this.id = id;
         this.content = content;
+        this.writer = writer;
+        this.isEdited = isEdited;
+        this.isDeleted = isDeleted;
+        this.parent = parent;
+        this.board = board;
+        this.createdAt = createdAt;
     }
 }
