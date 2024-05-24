@@ -51,9 +51,6 @@ public class Board {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
-
     @Builder
     public Board(Long id, String title, String content, Category category, String writer, Integer viewCount, Integer likeCount, Integer commentCount, Boolean isEdited, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;

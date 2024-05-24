@@ -17,7 +17,7 @@ public class BoardHeart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    /*@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
@@ -29,5 +29,5 @@ public class BoardHeart {
     public BoardHeart(Member member, Board board) {
         this.member = member;
         this.board = board;
-    }
+    }*/
 }

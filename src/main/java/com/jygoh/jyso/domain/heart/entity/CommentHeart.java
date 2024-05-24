@@ -17,17 +17,11 @@ public class CommentHeart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    /*@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id")
-    private Comment comment;
-
-    @Builder
-    public CommentHeart(Member member, Comment comment) {
-        this.member = member;
-        this.comment = comment;
-    }
+    private Comment comment;*/
 }

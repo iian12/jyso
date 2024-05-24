@@ -18,7 +18,7 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    @PostMapping("/{boardId}")
+    @PostMapping("/{boardId}/comments")
     public ResponseEntity<?> createComment(@PathVariable Long boardId, @RequestBody CommentCreateRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         String nickname = userDetails.getNickname();

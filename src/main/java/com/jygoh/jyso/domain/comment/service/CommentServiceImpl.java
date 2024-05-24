@@ -4,17 +4,12 @@ import com.jygoh.jyso.domain.board.entity.Board;
 import com.jygoh.jyso.domain.board.repository.BoardRepository;
 import com.jygoh.jyso.domain.board.service.BoardService;
 import com.jygoh.jyso.domain.comment.dto.CommentCreateRequestDto;
-import com.jygoh.jyso.domain.comment.dto.CommentResponseDto;
 import com.jygoh.jyso.domain.comment.dto.CommentUpdateRequestDto;
 import com.jygoh.jyso.domain.comment.entity.Comment;
 import com.jygoh.jyso.domain.comment.repository.CommentRepository;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
