@@ -1,7 +1,5 @@
 package com.jygoh.jyso.global.security.config;
 
-import com.jygoh.jyso.domain.member.service.UserDetailsServiceImpl;
-import com.jygoh.jyso.global.error.CustomAuthenticationEntryPoint;
 import com.jygoh.jyso.global.security.jwt.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,13 +18,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final CustomAuthenticationEntryPoint entryPoint;
-    private final UserDetailsServiceImpl userDetailsService;
     private final JwtFilter jwtFilter;
 
-    public SecurityConfig(CustomAuthenticationEntryPoint entryPoint, UserDetailsServiceImpl userDetailsService, JwtFilter jwtFilter) {
-        this.entryPoint = entryPoint;
-        this.userDetailsService = userDetailsService;
+    public SecurityConfig(JwtFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
     }
 
