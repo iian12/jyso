@@ -11,6 +11,10 @@ import com.jygoh.jyso.domain.comment.dto.CommentResponseDto;
 import com.jygoh.jyso.domain.comment.entity.Comment;
 import com.jygoh.jyso.domain.comment.repository.CommentRepository;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,6 +100,8 @@ public class BoardServiceImpl implements BoardService {
                 .map(this::convertToDto)
                 .toList();
 
+        incrementViewCount(boardId);
+
         return BoardResponseDto.builder()
                 .id(board.getId())
                 .title(board.getTitle())
@@ -111,8 +117,12 @@ public class BoardServiceImpl implements BoardService {
                 .build();
     }
 
-    public List<BoardListResponseDto> getBoardByCategory(Category category) {
-        return boardRepository.findByCategory(category).stream()
+    public List<BoardListResponseDto> getBoardByCategory(Category category, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "id"));
+        Page<Board> boardPage = boardRepository.findByCategory(category, pageable);
+
+        return boardPage.stream()
                 .map(board -> BoardListResponseDto.builder()
                         .id(board.getId())
                         .title(board.getTitle())
@@ -123,6 +133,26 @@ public class BoardServiceImpl implements BoardService {
                         .createdAt(board.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public void incrementViewCount(Long boardId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("Board not found"));
+
+        Board updatedBoard = Board.builder()
+                .id(board.getId())
+                .title(board.getTitle())
+                .content(board.getContent())
+                .category(board.getCategory())
+                .writer(board.getWriter())
+                .viewCount(board.getViewCount() + 1)
+                .likeCount(board.getLikeCount())
+                .commentCount(board.getCommentCount())
+                .createdAt(board.getCreatedAt())
+                .updatedAt(board.getUpdatedAt())
+                .build();
+
+        boardRepository.save(updatedBoard);
     }
 
     public void incrementCommentCount(Long boardId) {

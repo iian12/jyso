@@ -51,8 +51,10 @@ public class BoardController {
     }
 
     @GetMapping("/category/{category}")
-    public ResponseEntity<List<BoardListResponseDto>> getBoardList(@PathVariable Category category) {
-        List<BoardListResponseDto> boardResponses = boardService.getBoardByCategory(category);
+    public ResponseEntity<List<BoardListResponseDto>> getBoardList(@PathVariable Category category,
+                                                                   @RequestParam(defaultValue = "1") int page,
+                                                                   @RequestParam(defaultValue = "10") int size) {
+        List<BoardListResponseDto> boardResponses = boardService.getBoardByCategory(category, page, size);
         return ResponseEntity.ok(boardResponses);
     }
 

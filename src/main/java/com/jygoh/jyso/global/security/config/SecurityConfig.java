@@ -1,4 +1,4 @@
-package com.jygoh.jyso.global.config;
+package com.jygoh.jyso.global.security.config;
 
 import com.jygoh.jyso.domain.member.service.UserDetailsServiceImpl;
 import com.jygoh.jyso.global.error.CustomAuthenticationEntryPoint;
