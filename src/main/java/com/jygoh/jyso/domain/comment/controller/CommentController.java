@@ -19,7 +19,9 @@ public class CommentController {
     }
 
     @PostMapping("/{boardId}/comments")
-    public ResponseEntity<?> createComment(@PathVariable Long boardId, @RequestBody CommentCreateRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<?> createComment(@PathVariable Long boardId,
+                                           @RequestBody CommentCreateRequestDto requestDto,
+                                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         String nickname = userDetails.getNickname();
         commentService.createComment(boardId, requestDto, nickname);
@@ -27,14 +29,17 @@ public class CommentController {
     }
 
     @PutMapping("/{commentId}")
-    public ResponseEntity<Void> updateComment(@PathVariable Long commentId, @RequestBody CommentUpdateRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<Void> updateComment(@PathVariable Long commentId,
+                                              @RequestBody CommentUpdateRequestDto requestDto,
+                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
         String nickname = userDetails.getNickname();
         commentService.updateComment(commentId, requestDto, nickname);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId,
+                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
         String nickname = userDetails.getNickname();
         commentService.deleteComment(commentId, nickname);
         return ResponseEntity.ok().build();

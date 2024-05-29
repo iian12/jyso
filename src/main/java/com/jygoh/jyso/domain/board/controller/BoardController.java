@@ -27,7 +27,8 @@ public class BoardController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createBoard(@RequestBody BoardCreateRequestDto request, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<String> createBoard(@RequestBody BoardCreateRequestDto request,
+                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
         String nickname = userDetails.getNickname();
 
         boardService.createBoard(request, nickname);
@@ -36,7 +37,9 @@ public class BoardController {
     }
 
     @PutMapping("/{boardId}")
-    public ResponseEntity<String> updateBoard(@PathVariable Long boardId, @RequestBody BoardUpdateRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<String> updateBoard(@PathVariable Long boardId,
+                                              @RequestBody BoardUpdateRequestDto requestDto,
+                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
         String nickname = userDetails.getNickname();
         boardService.updateBoard(boardId, requestDto, nickname);
         return ResponseEntity.status(HttpStatus.OK).body("게시글이 성공적으로 수정되었습니다.");
